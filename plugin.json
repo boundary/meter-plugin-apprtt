@@ -5,6 +5,12 @@
 	"command" : "truesight-meter init.lua",
 	"command_lua" : "truesight-meter init.lua",
 	"metrics" : ["APP_RTT"],
+  "dashboards": [
+        {
+        "layout": "d-w=1&d-h=1&d-pad=5&d-light=1&d-bg=none&d-g-APP_RTT=0-0-1-1",
+        "name": "App RTT"
+        }
+    ],
 	"paramSchema" : [
 		{
 			"title" : "filter",
