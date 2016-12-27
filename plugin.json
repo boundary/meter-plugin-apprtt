@@ -1,0 +1,23 @@
+{
+  "version" : "0.0.1",
+  "tags" : "App RTT", 
+	"description" : "Displays App round trip time on a source",      
+	"command" : "truesight-meter init.lua",
+	"command_lua" : "truesight-meter init.lua",
+	"metrics" : ["APP_RTT"],
+	"paramSchema" : [
+		{
+			"title" : "filter",
+			"name" : "filter",
+			"description" : "The JSON subscription msg to subscribe flows on meter subscription channel.",
+			"type" : "string"  
+		},  
+    {
+			"title" : "Poll Interval (ms)",
+			"name" : "pollInterval",
+			"description" : "A number in milisecond to define the poll interval.",
+			"type" : "number",
+      "default": 5000
+		}
+	]
+}

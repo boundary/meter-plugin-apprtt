@@ -1,0 +1,11 @@
+{
+"APP_RTT": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 5000,
+    "description": "Application round trip time",
+    "displayName": "App RTT",
+    "displayNameShort": "App RTT",
+    "unit": "duration"
+  } 
+
+}
