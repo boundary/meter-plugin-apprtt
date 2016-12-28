@@ -1937,7 +1937,8 @@ function AppRTTDataSource:initialize(params)
       end
   end)
   socket1:on('error', function (err)
-       print('error'..'Socket error: ' .. err.message)
+    print('error'..'Socket error: ' .. err.message)
+    self:emit('error', 'There is an issue with socket connection to meter : '.. err.message)
   end)
 end
 
