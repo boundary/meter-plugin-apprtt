@@ -1920,16 +1920,17 @@ function AppRTTDataSource:initialize(params)
   local ck = function()
   end
   local socket1 = net.createConnection(8140, '127.0.0.1', ck)
-  --socket1.keepAlive(true)
-  socket1:write("{\"subscriber\":"..options.source..",\"flow\":"..options.filter.."}")
+  local subsMsg="{\"subscriber\" : \""..options.source.."\", \"flow\":{\"filter\":"..options.filter.."}}"
+  socket1:write(subsMsg)
   socket1:on('data',function(data)
       local success, parsed = parseJson(data)
       if not success then
-        self:emit('error', '[Not valid JSON] The subscription flow response can not be parsed. Please report  ')
+       self:emit('error', '[Not valid JSON] The subscription flow response can not be parsed. Please report  ')
       end
+
       if parsed.error then
-        self:emit('error', parsed.error..", Please delete the plugin and install again with correct parameters.")
-        socket1:destroy()
+       self:emit('error', parsed.error..", Please delete the plugin and install again with correct parameters.")
+       socket1:destroy()
       elseif parsed.flows then
         for k, v in pairs(parsed.flows) do
           if v.aRtt ~= 0 then
@@ -1938,15 +1939,18 @@ function AppRTTDataSource:initialize(params)
         end
       else
         self:emit('error', "Plugin is not working as the subscription flow response syntax has changed, Please report ")
-        socket1:destroy()
+       socket1:destroy()
       end
   end)
+
+
   socket1:on('error', function (err)
-    --print('error'..'Socket error: ' .. err.message)
+    print('error'..'Socket error: ' .. err.message)
     self:emit('error', 'There is an issue with socket connection to meter : '.. err.message)
     socket1:destroy()
   end)
 end
+
 
 function AppRTTDataSource:add( value)
   --    print("checking  self.count"..self.count)

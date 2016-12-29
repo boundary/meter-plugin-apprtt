@@ -15,16 +15,18 @@
 		{
 			"title" : "filter",
 			"name" : "filter",
-			"description" : "The JSON subscription msg to subscribe flows on meter subscription channel.(Change the localhost with your subscriber name)",
+			"description" : "The JSON filter String to subscribe flows on meter subscription channel.( See Help Doc for creating filter string)",
 			"type" : "string",
-"default":"{\"filters\":[\"tcp\"],\"options\":{\"include_loopback\":true}}"
+"default":"{\"options\":{\"include_loopback\":true}, \"filters\":[\"tcp\"]}",
+"required": true
 		},  
     {
 			"title" : "Poll Interval (ms)",
 			"name" : "pollInterval",
 			"description" : "A number in milisecond to define the poll interval.",
 			"type" : "number",
-      "default": 5000
+      "default": 5000,
+      "required": true
 		}
 	]
 }

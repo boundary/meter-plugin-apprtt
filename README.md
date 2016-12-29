@@ -28,11 +28,28 @@ The table below shows the currently supported OS's and how to enable the flag.
 | ArchLinux         	|  echo 1 > /proc/sys/net/ipv4/tcp_timestamps   |  Enabled        |
 | OpenSuse          	|  echo 1 > /proc/sys/net/ipv4/tcp_timestamps   |  Enabled        |
 | Alpine            	|  echo 1 > /proc/sys/net/ipv4/tcp_timestamps   |  Enabled        |
+
+#### Filter JSON value syntax/semantics
+For subscriptions to flows, the filter expression is an object like the following:
+{
+ "options": {
+  "include_loopback": true|false,
+  "include_geoip":true|false
+ },
+ "topk": {
+  "sorting_metric": "bits|packets|retransmits|out_of_order|handshake_rtt|app_rtt|disabled",
+  "num_flows": <number between 1 and 25, inclusive>
+ },
+ "filters": [
+ <an array of strings in BBPF (not PCRE) format, which are logically OR'd together by the flow filter logic>
+ ]
+}
+ 
  
 #### Plugin Configuration Fields
 |Field Name        |Description                                                                                                                                                                                                                                                    |
 |:-----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|filter            |The JSON subscription value to subscribe meter channel.                                                                                                                                                                                                          |
+|filter            |The JSON filter value to subscribe meter channel.                                                                                                                                                                                                          |
 |Polling Interval|A numeric value representing polling interval time in miliseconds (ex 1000 for 1 Sec).                                                                                                                                                                                                    |
 
 ### Metrics Collected

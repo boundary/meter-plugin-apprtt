@@ -1,4 +1,4 @@
 {
-"filter":"{\"subscriber\":\"localhost\",\"flow\":{\"filter\":{\"filters\":[\"tcp\"]},\"options\":{\"include_loopback\":true}}}",
+"filter":"{\"options\":{\"include_loopback\":true}, \"filters\":[\"tcp\"]}",
   "pollInterval" : 5000
 }
