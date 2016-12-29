@@ -17,7 +17,7 @@
 			"name" : "filter",
 			"description" : "The JSON subscription msg to subscribe flows on meter subscription channel.(Change the localhost with your subscriber name)",
 			"type" : "string",
-"default":"{\"subscriber\":\"localhost\",\"flow\":{\"filter\":{\"filters\":[\"tcp\"]},\"options\":{\"include_loopback\":true}}}"
+"default":"{\"filters\":[\"tcp\"],\"options\":{\"include_loopback\":true}}"
 		},  
     {
 			"title" : "Poll Interval (ms)",
