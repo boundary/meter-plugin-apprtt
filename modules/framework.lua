@@ -1981,9 +1981,9 @@ function AppRTTDataSource:add( value)
 function AppRTTDataSource:fetch(context, callback,params)
   local options = clone(self.options)
   local avg = AppRTTDataSource:averageTillNow()
-  local timestp = os.time()
+  --local timestp = os.time()
   local result ={}  
-table.insert(result, {metric = "APP_RTT", value = avg , source = options.source , timestamp = timestp})
+  table.insert(result, {metric = "APP_RTT", value = avg , source = options.source }) --, timestamp = timestp
   callback(result)
 end
 

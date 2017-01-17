@@ -66,7 +66,7 @@ socket:once('data',function(data)
       ipack(measurements, ...)
     end
     for K,V  in pairs(data) do
-      measurement(V.metric, V.value, V.timestamp, V.source)
+      measurement(V.metric, V.value, nil, V.source)
     end
 
     return measurements
