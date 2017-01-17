@@ -1431,7 +1431,7 @@ function Plugin:onFormat(metric, value, source, timestamp)
   if timestamp then
      return string.format('%s %d %s %s', metric, value, source, timestamp)
   else
-     return string.format('%s %d %s %s', metric, value, source)
+     return string.format('%s %d %s', metric, value, source)
   end
 end
 
