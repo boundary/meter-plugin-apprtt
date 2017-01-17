@@ -1429,20 +1429,12 @@ end
 function Plugin:onFormat(metric, value, source, timestamp)
   source = string.gsub(source, '[!@#$%%^&*() {}<>/\\|]', '_')
   if timestamp then
-    if metric=='MEM_PROCESS' then
-      return string.format('%s %d %s %s', metric, value, source, timestamp)
-    else
-        return string.format('%s %f %s %s', metric, value, source, timestamp)
-    end
+     return string.format('%s %d %s %s', metric, value, source, timestamp)
   else
-    if metric=='MEM_PROCESS' then
-      return string.format('%s %d %s %s', metric, value, source)
-    else
-        return string.format('%s %f %s %s', metric, value, source)
-    end
+     return string.format('%s %d %s %s', metric, value, source)
   end
-
 end
+
 
 --- Acumulator Class
 -- @type Accumulator
@@ -1983,7 +1975,8 @@ function AppRTTDataSource:fetch(context, callback,params)
   local avg = AppRTTDataSource:averageTillNow()
   --local timestp = os.time()
   local result ={}  
-  table.insert(result, {metric = "APP_RTT", value = avg , source = options.source }) --, timestamp = timestp
+  table.insert(result, {metric = "APP_RTT", value = avg , source = options.source }) 
+  --, timestamp = timestp
   callback(result)
 end
 
