@@ -1,7 +1,12 @@
 {
   "version" : "0.0.1",
   "tags" : "App RTT", 
-	"description" : "Displays App round trip time on a source",      
+	"description" : "Displays App round trip time on a source",   
+  "unsupportedPlatforms": [
+            {
+                "osFamily": "Windows"
+            }
+        ],
 	"command" : "truesight-meter init.lua",
 	"command_lua" : "truesight-meter init.lua",
 	"metrics" : ["APP_RTT"],
