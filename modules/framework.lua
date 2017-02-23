@@ -1893,17 +1893,13 @@ end)
 end
 
 --vitiwari
--- @vitiwari
--- This datasource to get percentage cpu usage based on parameters
--- @type ProcessCpuDataSource
+-- This datasource is to get Average TCP Round Trip Time
  local AppRTTDataSource = DataSource:extend()
 
--- ProcessCpuDataSource
+-- AppRTTDataSource
 -- @name ProcessCpuDataSource:new
 -- @param params a table with the configuraiton parameters.
--- TODO:param options details
 function AppRTTDataSource:initialize(params)
-  --print("inside process datasource initialize"..json.stringify(params))
   local options = params or {}
   self.options = options
   self.items = {}
@@ -1912,7 +1908,7 @@ function AppRTTDataSource:initialize(params)
   local ck = function()
   end
   local socket1 = net.createConnection(8140, '127.0.0.1', ck)
-  local subsMsg="{\"subscriber\" : \""..options.source.."\", \"flow\":{\"filter\":"..options.filter.."}}"
+  local subsMsg="{\"subscriber\" : \""..options.source.."\", \"flow\":{\"filter\":{\"options\":{\"include_loopback\":true}, \"filters\":[\"tcp\"]}}}"
   socket1:write(subsMsg)
   socket1:on('data',function(data)
       local success, parsed = parseJson(data)
@@ -1937,7 +1933,6 @@ function AppRTTDataSource:initialize(params)
 
 
   socket1:on('error', function (err)
-    print('error'..'Socket error: ' .. err.message)
     self:emit('error', 'There is an issue with socket connection to meter : '.. err.message)
     socket1:destroy()
   end)
@@ -1945,7 +1940,6 @@ end
 
 
 function AppRTTDataSource:add( value)
-  --    print("checking  self.count"..self.count)
       self.count = self.count + 1
       self.items[self.count] = value
  end
@@ -1969,14 +1963,12 @@ function AppRTTDataSource:add( value)
       return avg
  end
 
---ProcessCpuDataSource fetch function
+--AppRTTDataSource fetch function
 function AppRTTDataSource:fetch(context, callback,params)
   local options = clone(self.options)
   local avg = AppRTTDataSource:averageTillNow()
-  --local timestp = os.time()
   local result ={}  
-  table.insert(result, {metric = "APP_RTT", value = avg , source = options.source }) 
-  --, timestamp = timestp
+  table.insert(result, {metric = "TCP_RTT", value = avg , source = options.source }) 
   callback(result)
 end
 

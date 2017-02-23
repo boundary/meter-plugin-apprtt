@@ -1,10 +1,10 @@
 {
-"APP_RTT": {
+"TCP_RTT": {
     "defaultAggregate": "AVG",
     "defaultResolutionMS": 5000,
-    "description": "Application round trip time",
-    "displayName": "App RTT",
-    "displayNameShort": "App RTT",
+    "description": "TCP Round Trip Time",
+    "displayName": "TCP RTT",
+    "displayNameShort": "TCP RTT",
     "unit": "duration"
   } 
 

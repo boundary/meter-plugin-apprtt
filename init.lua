@@ -40,11 +40,6 @@ local function createPoller(params)
     return poller;
 end
 
--- Removed call back function to be passed in net.createConnection 
--- passing nil in place of callBack as of now
--- local ck = function()
--- end
--- local socket = net.createConnection(9192, '127.0.0.1', ck)
 -- Create a socket connection to make JSON RPC call for getting system information
 -- This will get called on intallation of plugin
 local socket = net.createConnection(9192, '127.0.0.1', nil)
