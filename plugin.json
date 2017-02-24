@@ -1,37 +1,31 @@
 {
-  "version" : "0.0.1",
-  "tags" : "App RTT", 
-	"description" : "Displays App round trip time on a source",   
-  "unsupportedPlatforms": [
-            {
-                "osFamily": "Windows"
-            }
-        ],
-	"command" : "truesight-meter init.lua",
-	"command_lua" : "truesight-meter init.lua",
-	"metrics" : ["APP_RTT"],
-  "dashboards": [
-        {
-        "layout": "d-w=1&d-h=1&d-pad=5&d-light=1&d-bg=none&d-g-APP_RTT=0-0-1-1",
-        "name": "App RTT"
-        }
-    ],
-	"paramSchema" : [
-		{
-			"title" : "filter",
-			"name" : "filter",
-			"description" : "The JSON filter String to subscribe flows on meter subscription channel.( See Help Doc for creating filter string)",
-			"type" : "string",
-"default":"{\"options\":{\"include_loopback\":true}, \"filters\":[\"tcp\"]}",
-"required": true
-		},  
-    {
-			"title" : "Poll Interval (ms)",
-			"name" : "pollInterval",
-			"description" : "A number in milisecond to define the poll interval.",
-			"type" : "number",
-      "default": 5000,
-      "required": true
-		}
-	]
+	"version": "0.0.1",
+	"tags": "TCP RTT",
+	"meterVersionRequired": "4.5.1",
+	"description": "Displays TCP round trip time on a source",
+	"unsupportedPlatforms": [{
+		"osFamily": "Windows"
+	}],
+	"command": "truesight-meter init.lua",
+	"command_lua": "truesight-meter init.lua",
+	"metrics": [
+		"TCP_RTT"
+	],
+	"dashboards": [{
+		"layout": "d-w=1&d-h=1&d-pad=5&d-light=1&d-bg=none&d-g-TCP_RTT=0-0-1-1",
+		"name": "TCP RTT"
+	}],
+	"paramSchema": [{
+		"title": "Poll Interval (ms)",
+		"name": "pollInterval",
+		"description": "A number in milisecond to define the poll interval.",
+		"type": "number",
+		"default": 5000,
+		"required": true
+	},{
+      "title" : "Source",
+      "name" : "source",
+      "description" : "The Source to display in the legend for the data.  It will default to the hostname of the server",
+      "type" : "string"
+    }]
 }

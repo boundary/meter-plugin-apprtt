@@ -1,4 +1,4 @@
 {
-"filter":"{\"options\":{\"include_loopback\":true}, \"filters\":[\"tcp\"]}",
+  "source":"",
   "pollInterval" : 5000
 }

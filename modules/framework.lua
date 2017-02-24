@@ -1199,7 +1199,7 @@ factory(DataSourcePoller)
 -- @param dataSource A DataSource to be polled
 -- @name DataSourcePoller:new
 function DataSourcePoller:initialize(pollInterval, dataSource)
-  self.pollInterval = (tonumber(pollInterval) < 1000 and 1000) or pollInterval
+  self.pollInterval = (pollInterval < 1000 and 1000) or pollInterval
   self.dataSource = dataSource
   dataSource:propagate('error', self)
   dataSource:propagate('info', self)
@@ -1429,12 +1429,11 @@ end
 function Plugin:onFormat(metric, value, source, timestamp)
   source = string.gsub(source, '[!@#$%%^&*() {}<>/\\|]', '_')
   if timestamp then
-     return string.format('%s %d %s %s', metric, value, source, timestamp)
+    return string.format('%s %f %s %s', metric, value, source, timestamp)
   else
-     return string.format('%s %d %s', metric, value, source)
+    return string.format('%s %f %s', metric, value, source)
   end
 end
-
 
 --- Acumulator Class
 -- @type Accumulator
@@ -1648,8 +1647,9 @@ function WebRequestDataSource:fetch(context, callback, params)
     end
 
     req:propagate('error', self, function (err)
-      err.context = self
-      err.params = params
+      --err.context = self
+      --err.params = params
+      err = err .. "(" .. options.host  .. ":" ..  options.port .. ")"
       return err
     end)
     req:done()
@@ -1802,182 +1802,12 @@ function FileReaderDataSource:fetch(context, func, params)
     self:emit('error', 'The "' .. self.path .. '" was not found.')
   else 
     local success, result = pcall(fs.readFileSync, self.path)
-	  if not success then
+    if not success then
       self:emit('error', failure)
     else
       func(result)
     end
   end
-end
-
-
-
--- @vitiwari
--- This datasource to get percentage cpu usage based on parameters
--- @type ProcessCpuDataSource
- local ProcessCpuDataSource = DataSource:extend()
-
--- ProcessCpuDataSource
--- @name ProcessCpuDataSource:new
--- @param params a table with the configuraiton parameters.
--- TODO:param options details
-function ProcessCpuDataSource:initialize(params)
-  --print("inside process datasource initialize"..json.stringify(params))
-  local options = params or {}
-  self.options = options
-  self.logger = getDefaultLogger(params.debug_level)
-end
-
---ProcessCpuDataSource fetch function
-function ProcessCpuDataSource:fetch(context, callback,params)
-  local options = clone(self.options)
-  local parse = function (val)
-      local result = {}
-      if table.getn(val) <= 0 then
-          self:emit('error', 'No process found with specifications given: '..json.stringify(self.options))
-          return
-      end
-      for K,V  in pairs(val) do
-              table.insert(result, {metric = V["metric"], value = V["val"],source = V["source"], timestamp = V["timestamp"]})
-      end
-   callback(result)
-  end
-  --Call the get process cpu Data which will make JSON RPC calls
-  ProcessCpuDataSource:getProcessCpuData(9192,'127.0.0.1',options,parse)
-end
-
-
-function ProcessCpuDataSource:getProcessData(params)
- params = params or { match = ''}
- return '{"jsonrpc":"2.0","method":"get_process_info","id":1,"params":' .. json.stringify(params) .. '}\n'
-end
-
-
-
-
-function ProcessCpuDataSource:getProcessCpuData(port,host,prams,parse)
-  local callback = function()
-  end
-  local socket = net.createConnection(tonumber(port), host, callback)
-  socket:write(ProcessCpuDataSource:getProcessData(prams))
-  socket:once('data',function(data)
-  local sucess,  parsed = parseJson(data)
-  local timestamp = os.time()
-  local result = {}
-   if(parsed.result.processes~=nil)then
-    for K,V  in pairs(parsed.result.processes) do
-       if(prams.isCpuMetricsReq) then
-        local resultitem={}
-        resultitem['metric']='CPU_PROCESS'
-        resultitem['val']= V["cpuPct"]/100
-        resultitem['source']= prams['source']..V["name"]..V["pid"]
-        resultitem['timestamp']=timestamp
-        table.insert(result,resultitem)
-      end
-
-      if(prams.isMemMetricsReq) then
-        local itm={}
-        itm['metric']='MEM_PROCESS'
-        itm['val']= V["memRss"]
-        itm['source']= prams['source']..V["name"]..V["pid"]
-        itm['timestamp']=timestamp
-        table.insert(result,itm)
-      end
-
-      --i=i+1;
-    end
-  end
-  socket:destroy()
-  parse(result)
-end)
-end
-
---vitiwari
--- @vitiwari
--- This datasource to get percentage cpu usage based on parameters
--- @type ProcessCpuDataSource
- local AppRTTDataSource = DataSource:extend()
-
--- ProcessCpuDataSource
--- @name ProcessCpuDataSource:new
--- @param params a table with the configuraiton parameters.
--- TODO:param options details
-function AppRTTDataSource:initialize(params)
-  --print("inside process datasource initialize"..json.stringify(params))
-  local options = params or {}
-  self.options = options
-  self.items = {}
-  self.count = 0
-  self.logger = getDefaultLogger(params.debug_level)
-  local ck = function()
-  end
-  local socket1 = net.createConnection(8140, '127.0.0.1', ck)
-  local subsMsg="{\"subscriber\" : \""..options.source.."\", \"flow\":{\"filter\":"..options.filter.."}}"
-  socket1:write(subsMsg)
-  socket1:on('data',function(data)
-      local success, parsed = parseJson(data)
-      if not success then
-       self:emit('error', '[Not valid JSON] The subscription flow response can not be parsed. Please report  ')
-      end
-
-      if parsed.error then
-       self:emit('error', parsed.error..", Please delete the plugin and install again with correct parameters.")
-       socket1:destroy()
-      elseif parsed.flows then
-        for k, v in pairs(parsed.flows) do
-          if v.aRtt ~= 0 then
-            AppRTTDataSource:add(v.aRtt)
-          end
-        end
-      else
-        self:emit('error', "Plugin is not working as the subscription flow response syntax has changed, Please report ")
-       socket1:destroy()
-      end
-  end)
-
-
-  socket1:on('error', function (err)
-    print('error'..'Socket error: ' .. err.message)
-    self:emit('error', 'There is an issue with socket connection to meter : '.. err.message)
-    socket1:destroy()
-  end)
-end
-
-
-function AppRTTDataSource:add( value)
-  --    print("checking  self.count"..self.count)
-      self.count = self.count + 1
-      self.items[self.count] = value
- end
-
- function AppRTTDataSource:averageTillNow()
-      local llist=clone(self.items);
-      self.items = {}
-      self.count = 0
-      local sum = 0
-      local count = 0
-      if llist then
-       for k, v in pairs(llist) do
-        sum=sum + v
-        count=count + 1
-       end
-      end
-      local avg = 0
-      if count > 0 then
-       avg= sum/count
-      end
-      return avg
- end
-
---ProcessCpuDataSource fetch function
-function AppRTTDataSource:fetch(context, callback,params)
-  local options = clone(self.options)
-  local avg = AppRTTDataSource:averageTillNow()
-  --local timestp = os.time()
-  local result ={}  
-  table.insert(result, {metric = "APP_RTT", value = avg , source = options.source }) 
-  --, timestamp = timestp
-  callback(result)
 end
 
 framework.FileReaderDataSource = FileReaderDataSource
@@ -1987,9 +1817,6 @@ framework.DataSourcePoller = DataSourcePoller
 framework.WebRequestDataSource = WebRequestDataSource
 framework.PollerCollection = PollerCollection
 framework.MeterDataSource = MeterDataSource
-framework.ProcessCpuDataSource = ProcessCpuDataSource
-framework.AppRTTDataSource = AppRTTDataSource
 
 return framework
-
 

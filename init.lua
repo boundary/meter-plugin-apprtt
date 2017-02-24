@@ -1,11 +1,11 @@
--- @vitiwari
+--@vitiwari
 -- plugin to track App Round Trip Time using lua
 local framework = require('framework')
 local net = require('net')
 local json = require('json')
-
+local clone = framework.table.clone
 local Plugin = framework.Plugin
-local AppRTTDataSource = framework.AppRTTDataSource
+local DataSource = framework.DataSource
 local DataSourcePoller = framework.DataSourcePoller
 local PollerCollection = framework.PollerCollection
 local ipack = framework.util.ipack
@@ -17,6 +17,89 @@ local params = framework.params
 local hostName =nil
 local pollers = nil
 local plugin = nil
+
+
+-- vitiwari
+-- This datasource is to get Average TCP Round Trip Time
+ local TcpRTTDataSource = DataSource:extend()
+
+-- TcpRTTDataSource
+-- @name ProcessCpuDataSource:new
+-- @param params a table with the configuraiton parameters.
+function TcpRTTDataSource:initialize(params)
+  local options = params or {}
+  self.options = options
+  self.items = {}
+  self.count = 0
+  local ck = function()
+  end
+  local socket1 = net.createConnection(8140, '127.0.0.1', ck)
+  local subsMsg="{\"subscriber\" : \""..options.source.."\", \"flow\":{\"filter\":{\"options\":{\"include_loopback\":true}, \"filters\":[\"tcp\"]}}}"
+  socket1:write(subsMsg)
+  socket1:on('data',function(data)
+      local success, parsed = parseJson(data)
+      if not success then
+       self:emit('error', '[Not valid JSON] The subscription flow response can not be parsed. Please report  ')
+      end
+
+      if parsed.error then
+       self:emit('error', parsed.error..", Please delete the plugin and install again with correct parameters.")
+       socket1:destroy()
+      elseif parsed.flows then
+        for k, v in pairs(parsed.flows) do
+          if v.aRtt ~= 0 then
+            TcpRTTDataSource:add(v.aRtt)
+          end
+        end
+      else
+        self:emit('error', "Plugin is not working as the subscription flow response syntax has changed, Please report ")
+       socket1:destroy()
+      end
+  end)
+
+
+  socket1:on('error', function (err)
+    self:emit('error', 'There is an issue with socket connection to meter : '.. err.message)
+    socket1:destroy()
+  end)
+end
+
+
+function TcpRTTDataSource:add( value)
+      self.count = self.count + 1
+      self.items[self.count] = value
+ end
+
+ function TcpRTTDataSource:averageTillNow()
+      local llist=clone(self.items);
+      self.items = {}
+      self.count = 0
+      local sum = 0
+      local count = 0
+      if llist then
+       for k, v in pairs(llist) do
+        sum=sum + v
+        count=count + 1
+       end
+      end
+      local avg = 0
+      if count > 0 then
+       avg= sum/count
+      end
+      return avg
+ end
+
+--TcpRTTDataSource fetch function
+function TcpRTTDataSource:fetch(context, callback,params)
+  local options = clone(self.options)
+  local avg = TcpRTTDataSource:averageTillNow()
+  local result ={}  
+  table.insert(result, {metric = "TCP_RTT", value = avg , source = options.source }) 
+  callback(result)
+end
+
+
+
 
 -- Create an options object containing required parameters and values
 local function createOptions(item)
@@ -30,7 +113,7 @@ end
 -- Create data source 
 local function createDataSource(item)
     local options = createOptions(item)
-    return AppRTTDataSource:new(options)
+    return TcpRTTDataSource:new(options)
 end
 
 -- Create Poller
@@ -40,11 +123,6 @@ local function createPoller(params)
     return poller;
 end
 
--- Removed call back function to be passed in net.createConnection 
--- passing nil in place of callBack as of now
--- local ck = function()
--- end
--- local socket = net.createConnection(9192, '127.0.0.1', ck)
 -- Create a socket connection to make JSON RPC call for getting system information
 -- This will get called on intallation of plugin
 local socket = net.createConnection(9192, '127.0.0.1', nil)
