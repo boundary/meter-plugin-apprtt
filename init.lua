@@ -21,12 +21,12 @@ local plugin = nil
 
 -- vitiwari
 -- This datasource is to get Average TCP Round Trip Time
- local AppRTTDataSource = DataSource:extend()
+ local TcpRTTDataSource = DataSource:extend()
 
--- AppRTTDataSource
+-- TcpRTTDataSource
 -- @name ProcessCpuDataSource:new
 -- @param params a table with the configuraiton parameters.
-function AppRTTDataSource:initialize(params)
+function TcpRTTDataSource:initialize(params)
   local options = params or {}
   self.options = options
   self.items = {}
@@ -48,7 +48,7 @@ function AppRTTDataSource:initialize(params)
       elseif parsed.flows then
         for k, v in pairs(parsed.flows) do
           if v.aRtt ~= 0 then
-            AppRTTDataSource:add(v.aRtt)
+            TcpRTTDataSource:add(v.aRtt)
           end
         end
       else
@@ -65,12 +65,12 @@ function AppRTTDataSource:initialize(params)
 end
 
 
-function AppRTTDataSource:add( value)
+function TcpRTTDataSource:add( value)
       self.count = self.count + 1
       self.items[self.count] = value
  end
 
- function AppRTTDataSource:averageTillNow()
+ function TcpRTTDataSource:averageTillNow()
       local llist=clone(self.items);
       self.items = {}
       self.count = 0
@@ -89,10 +89,10 @@ function AppRTTDataSource:add( value)
       return avg
  end
 
---AppRTTDataSource fetch function
-function AppRTTDataSource:fetch(context, callback,params)
+--TcpRTTDataSource fetch function
+function TcpRTTDataSource:fetch(context, callback,params)
   local options = clone(self.options)
-  local avg = AppRTTDataSource:averageTillNow()
+  local avg = TcpRTTDataSource:averageTillNow()
   local result ={}  
   table.insert(result, {metric = "TCP_RTT", value = avg , source = options.source }) 
   callback(result)
@@ -113,7 +113,7 @@ end
 -- Create data source 
 local function createDataSource(item)
     local options = createOptions(item)
-    return AppRTTDataSource:new(options)
+    return TcpRTTDataSource:new(options)
 end
 
 -- Create Poller
