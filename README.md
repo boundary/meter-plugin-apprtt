@@ -5,9 +5,9 @@ Displays Average TCP Round Trip Time for a host.
 
 ### Prerequisites
 
-|     OS    | Linux | Windows | SmartOS | OS X |
-|:----------|:-----:|:-------:|:-------:|:----:|
-| Supported |   v   |    x    |    v    |  v   |
+|     OS    | Linux | Windows | OS X |
+|:----------|:-----:|:-------:|:----:|
+| Supported |   v   |    -    |  v   |
 
 
 ### Plugin Setup
@@ -20,7 +20,6 @@ The table below shows the currently supported OS's and how to enable the flag.
 |:--------------------|:---------------------------------------------:|:---------------:|
 | OS/X 10.8 to 10.10	|  sudo sysctl net.inet.tcp.rfc1323=1           |  Enabled        |
 | OS/X 10.11         	|  Unknown - feature was removed                |  Unknown        |
-| Windows 2008/2012 	|  netsh int tcp set global timestamps=enabled  |  Disabled        |
 | Ubuntu            	|  echo 1 > /proc/sys/net/ipv4/tcp_timestamps   |  Enabled        |
 | CentOS            	|  echo 1 > /proc/sys/net/ipv4/tcp_timestamps   |  Enabled        |
 | FreeBSD            	|  sudo sysctl net.inet.tcp.rfc1323=1           |  Enabled        |
