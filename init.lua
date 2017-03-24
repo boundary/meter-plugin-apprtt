@@ -67,7 +67,7 @@ end
 
 function TcpRTTDataSource:add( value)
       self.count = self.count + 1
-      self.items[self.count] = value
+      self.items[self.count] = value/1000
  end
 
  function TcpRTTDataSource:averageTillNow()
